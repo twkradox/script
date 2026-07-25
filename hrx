@@ -41,7 +41,7 @@ Player.Idled:Connect(preventAFK)
 
 local library = loadstring(game:HttpGet("https://pastebin.com/raw/Wbv9FYv2", true))()
 
-local window = library:AddWindow("Clan CLFT Hub| Private", {
+local window = library:AddWindow("Clan HRX Hub| Private", {
     main_color = Color3.fromRGB(0, 0, 255),
     min_size = Vector2.new(650, 870),
     can_resize = true,
