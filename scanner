@@ -1,0 +1,144 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+-- Usamos PlayerGui en lugar de CoreGui si es un LocalScript normal
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- Esperar las estadísticas (Asegúrate de que el nombre "Rebirths" sea exacto)
+local leaderstats = player:WaitForChild("leaderstats", 10)
+if not leaderstats then return warn("No se encontró leaderstats") end
+
+local rebirthStat = leaderstats:WaitForChild("Rebirths", 10)
+if not rebirthStat then return warn("No se encontró la estadística Rebirths") end
+
+-- Función para abreviar (5.54M)
+local function formatAbbreviated(number)
+    local abbreviations = {"", "K", "M", "B", "T", "Qa", "Qi"}
+    local index = 1
+    local val = tonumber(number) or 0
+    while val >= 1000 and index < #abbreviations do
+        val = val / 1000
+        index = index + 1
+    end
+    return string.format("%.2f%s", val, abbreviations[index])
+end
+
+-- Función para formato con puntos (5.543.043)
+local function formatWithPoints(number)
+    local formatted = tostring(math.floor(number))
+    local k
+    while true do
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1.%2')
+        if k == 0 then break end
+    end
+    return formatted
+end
+
+-- Limpiar anterior si existe
+if PlayerGui:FindFirstChild("MiniRebirthTracker") then 
+    PlayerGui.MiniRebirthTracker:Destroy() 
+end
+
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = "MiniRebirthTracker"
+ScreenGui.ResetOnSpawn = false -- Para que no desaparezca al morir
+
+-- Panel Principal
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 280, 0, 140)
+MainFrame.Position = UDim2.new(0.5, -140, 0.2, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(0, 200, 255)
+MainStroke.Thickness = 2
+
+-- Barra de Título (Botón para minimizar)
+local TitleBtn = Instance.new("TextButton", MainFrame)
+TitleBtn.Size = UDim2.new(1, 0, 0, 35)
+TitleBtn.Text = "   REBIRTH OMEGADEZZ/SCANNER"
+TitleBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
+TitleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+TitleBtn.Font = Enum.Font.GothamBold
+TitleBtn.TextSize = 12
+TitleBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+local isMinimized = false
+TitleBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    MainFrame:TweenSize(
+        isMinimized and UDim2.new(0, 280, 0, 35) or UDim2.new(0, 280, 0, 140),
+        "Out", "Quad", 0.3, true
+    )
+end)
+
+-- Contenedor de Datos
+local Content = Instance.new("Frame", MainFrame)
+Content.Size = UDim2.new(1, -20, 0, 90)
+Content.Position = UDim2.new(0, 10, 0, 45)
+Content.BackgroundTransparency = 1
+
+local Layout = Instance.new("UIListLayout", Content)
+Layout.Padding = UDim.new(0, 6)
+
+local function CreateLabel(color)
+    local lbl = Instance.new("TextLabel", Content)
+    lbl.Size = UDim2.new(1, 0, 0, 22)
+    lbl.BackgroundTransparency = 1
+    lbl.TextColor3 = color or Color3.fromRGB(255, 255, 255)
+    lbl.Font = Enum.Font.Code
+    lbl.TextSize = 12
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    return lbl
+end
+
+local timerLabel = CreateLabel(Color3.fromRGB(200, 200, 200))
+local currentLabel = CreateLabel(Color3.fromRGB(255, 255, 255))
+local gainedLabel = CreateLabel(Color3.fromRGB(0, 255, 150))
+
+-- Lógica de Actualización
+local startTime = tick()
+local initialRebirths = rebirthStat.Value
+
+task.spawn(function()
+    while task.wait(0.5) and ScreenGui.Parent do
+        local elapsed = tick() - startTime
+        
+        local d = math.floor(elapsed / 86400)
+        local h = math.floor((elapsed % 86400) / 3600)
+        local m = math.floor((elapsed % 3600) / 60)
+        local s = math.floor(elapsed % 60)
+        
+        local current = rebirthStat.Value
+        local gained = current - initialRebirths
+
+        timerLabel.Text = string.format("⏱ %02d DÍAS / %02d HS / %02d MIN / %02d SEG", d, h, m, s)
+        currentLabel.Text = "Actuales: " .. formatAbbreviated(current) .. " / " .. formatWithPoints(current)
+        gainedLabel.Text = "Ganados: " .. formatAbbreviated(gained) .. " / " .. formatWithPoints(gained)
+    end
+end)
+
+-- Arrastre del Panel
+local dragging, dragStart, startPos
+TitleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true 
+        dragStart = input.Position 
+        startPos = MainFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input) 
+    dragging = false 
+end)
