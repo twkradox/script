@@ -1,4 +1,4 @@
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/HonnyDezz/pruebas/refs/heads/main/libreria%203"))()
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/twkradox/script/blob/main/library%203"))()
 
 local window = library:AddWindow("RENACIMIENTOKING HUB | OP Rebirth/Strength", {
     main_color = Color3.fromRGB(255, 0, 0),
