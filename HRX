@@ -259,5 +259,3 @@ LocalPlayer.CharacterAdded:Connect(function()
     task.wait(3)
     EjecutarAutoStart()
 end)
-
-OpenGUI()
