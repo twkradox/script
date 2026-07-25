@@ -60,7 +60,7 @@ MainStroke.Thickness = 2
 -- Barra de Título (Botón para minimizar)
 local TitleBtn = Instance.new("TextButton", MainFrame)
 TitleBtn.Size = UDim2.new(1, 0, 0, 35)
-TitleBtn.Text = "   REBIRTH OMEGADEZZ/SCANNER"
+TitleBtn.Text = "   HRX/SCANNER"
 TitleBtn.TextColor3 = Color3.fromRGB(0, 255, 255)
 TitleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 TitleBtn.Font = Enum.Font.GothamBold
