@@ -210,7 +210,7 @@ ee:AddButton("Eliminar Efectos/Lags", function()
 end)
 
 ee:AddButton("Rebirth Scanner", function()
-    loadstring(game:HttpGet("https://pastebin.com/raw/fLpXDcMh"))()
+    loadstring(game:HttpGet("https://pastefy.app/BminUSUx"))()
 end)
 
 -- 🌐 Auto rejoin si hay error
